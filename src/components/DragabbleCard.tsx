@@ -23,6 +23,7 @@ function DragabbleCard({ toDo, index }: IDragabbleCardProps) {
           {...magic.dragHandleProps}
           {...magic.draggableProps}
         >
+            
           {toDo}
         </Card>
       )}
