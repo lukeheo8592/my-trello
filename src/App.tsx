@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
@@ -9,7 +9,7 @@ import Board from "./Components/Board";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: raw;
-  width: 70%;
+  width: 90%;
   margin: 0 auto;
   justify-content: center;
   align-items: center;
@@ -19,7 +19,7 @@ const Boards = styled.div`
   display: flex;
   justify-content: center;
   align-items: start;
-  flex-wrap: wrap;
+  flex-wrap: no-wrap;
   width: 100%;
   gap: 20px;
 `;
@@ -34,9 +34,24 @@ const Main = styled.title`
 function App() {
   const [toDos, setToDos] = useRecoilState(toDoState);
   const onDragEnd = (info: DropResult) => {
-    const { destination, draggableId, source } = info;
-    if (!destination) return;
-    if (destination?.droppableId === source.droppableId) {
+    const { type, destination, draggableId, source } = info;
+    
+    if (!destination || !source) return;
+    if(type === "board"){
+      if(destination?.index === source.index) return;
+      setToDos((prev) => {
+        const new_board = Object.entries(prev);
+        const [temp] = new_board.splice(source.index, 1);
+        new_board.splice(destination.index, 0, temp);
+        return new_board.reduce(
+          (acc, [key, value]) => ({
+            ...acc,
+            [key]: value,
+          }),
+          {}
+        );
+      });
+    }else if (destination?.droppableId === source.droppableId) {
       // same board movement.
       setToDos((allBoards) => {
         const boardCopy = [...allBoards[source.droppableId]];
@@ -48,8 +63,7 @@ function App() {
           [source.droppableId]: boardCopy,
         };
       });
-    }
-    if (destination.droppableId !== source.droppableId) {
+    }else if (destination.droppableId !== source.droppableId) {
       // cross board movement
       setToDos((allBoards) => {
         const sourceBoard = [...allBoards[source.droppableId]];
@@ -80,11 +94,25 @@ function App() {
       <Main>✔ To Do list</Main>
       <AddBoard/>
       <Wrapper>
-        <Boards>
-          {Object.keys(toDos).map((boardId) => (
-            <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
-          ))}
-        </Boards>
+      <Droppable
+          droppableId="droppableBoards"
+          type="board"
+          direction="horizontal"
+        >
+          {(magic) => (
+            <Boards ref={magic.innerRef} {...magic.droppableProps}>
+              {Object.keys(toDos).map((boardId, index) => (
+                <Board
+                  key={boardId}
+                  boardId={boardId}
+                  toDos={toDos[boardId]}
+                  boardIndex={index}
+                />
+              ))}
+              {magic.placeholder}
+            </Boards>
+          )}
+        </Droppable>
       </Wrapper>
     </DragDropContext>
   );

@@ -6,7 +6,7 @@ export interface ITodo {
 }
 
 interface IToDoState {
-  [key: string | number]: ITodo[];
+  [key: string]: ITodo[];
 }
 
 
