@@ -5,8 +5,9 @@ import DragabbleCard from "./DragabbleCard";
 import { ITodo, toDoState } from "../atoms";
 import { useSetRecoilState } from "recoil";
 import React from "react";
+import { motion } from "framer-motion";
 
-const Wrapper = styled.div`
+const Wrapper = styled(motion.div)`
   width: 250px;
   background-color: ${(props) => props.theme.boardColor};
   border-radius: 5px;
@@ -85,7 +86,6 @@ function Board({ toDos, boardId, boardIndex }: IBoardProps) {
     <Draggable draggableId={boardId} index={boardIndex}>
       {(magic, info) => (
         <Wrapper
-          
           ref={magic.innerRef}
           {...magic.draggableProps}
         >

@@ -5,7 +5,8 @@ import styled from "styled-components";
 import { toDoState } from "./atoms";
 import AddBoard from "./Components/AddBoard";
 import Board from "./Components/Board";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from '@fortawesome/free-solid-svg-icons'
 const Wrapper = styled.div`
   display: flex;
   flex-direction: raw;
@@ -31,14 +32,56 @@ const Main = styled.title`
   font-size: 40px;
   font-weight: 600;
 `;
+const DeleteArea = styled.div<IAreaProps>`
+  width: 200px;
+  height: 200px;
+ position: absolute;
+  
+`;
+const TrashBox = styled.div`
+width: 250px;
+height: 250px;
+margin: auto;
+margin-top: 100px;
+display:flex;
+justify-content: center;
+align-items: center;
+&:hover {
+  transform: scale(1.3);
+  svg {
+    color: red;
+  }
+}
+`
+
+
+interface IAreaProps {
+  isDraggingOver: boolean;
+}
+
 function App() {
   const [toDos, setToDos] = useRecoilState(toDoState);
   const onDragEnd = (info: DropResult) => {
     const { type, destination, draggableId, source } = info;
-    
+
     if (!destination || !source) return;
-    if(type === "board"){
-      if(destination?.index === source.index) return;
+    if (destination?.droppableId === 'DeleteCard' || destination?.droppableId === 'DeleteBoard') {
+      if(destination?.droppableId === 'DeleteCard'){
+        setToDos((allBoard) => {
+          const sourceBoard = [...allBoard[source.droppableId]];
+          sourceBoard.splice(source.index, 1);
+          return { ...allBoard, [source.droppableId]: sourceBoard };
+        });
+      }else{
+        setToDos((prev) => {
+          const newBoard = {...prev};
+          delete newBoard[info.draggableId];
+          return newBoard
+        })
+      }
+     
+    }else if (type === "board") {
+      if (destination?.index === source.index) return;
       setToDos((prev) => {
         const new_board = Object.entries(prev);
         const [temp] = new_board.splice(source.index, 1);
@@ -51,7 +94,7 @@ function App() {
           {}
         );
       });
-    }else if (destination?.droppableId === source.droppableId) {
+    } else if (destination?.droppableId === source.droppableId) {
       // same board movement.
       setToDos((allBoards) => {
         const boardCopy = [...allBoards[source.droppableId]];
@@ -63,43 +106,44 @@ function App() {
           [source.droppableId]: boardCopy,
         };
       });
-    }else if (destination.droppableId !== source.droppableId) {
+    } else if (destination.droppableId !== source.droppableId) {
       // cross board movement
-      setToDos((allBoards) => {
-        const sourceBoard = [...allBoards[source.droppableId]];
+      setToDos((allBoard) => {
+        const sourceBoard = [...allBoard[source.droppableId]];
         const taskObj = sourceBoard[source.index];
-        const destinationBoard = [...allBoards[destination.droppableId]];
+        const destinationBoard = [...allBoard[destination.droppableId]];
         sourceBoard.splice(source.index, 1);
         destinationBoard.splice(destination?.index, 0, taskObj);
         return {
-          ...allBoards,
+          ...allBoard,
           [source.droppableId]: sourceBoard,
           [destination.droppableId]: destinationBoard,
         };
       });
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     const savedItem = localStorage.getItem("myList");
-    if(savedItem === "{}" || savedItem === null){
-      return ;
+    if (savedItem === "{}" || savedItem === null) {
+      return;
     }
     setToDos(JSON.parse(savedItem));
-  }, [])
+  }, []);
   useEffect(() => {
     localStorage.setItem("myList", JSON.stringify(toDos));
   }, [toDos]);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Main>✔ To Do list</Main>
-      <AddBoard/>
+      <AddBoard />
       <Wrapper>
-      <Droppable
+        <Droppable
           droppableId="droppableBoards"
           type="board"
           direction="horizontal"
         >
           {(magic) => (
+            
             <Boards ref={magic.innerRef} {...magic.droppableProps}>
               {Object.keys(toDos).map((boardId, index) => (
                 <Board
@@ -114,6 +158,37 @@ function App() {
           )}
         </Droppable>
       </Wrapper>
+
+      <TrashBox>
+      <Droppable droppableId="DeleteCard">
+          {(magic, snapshot) => (
+            <>
+              <DeleteArea
+                isDraggingOver={snapshot.isDraggingOver}
+                ref={magic.innerRef}
+                {...magic.droppableProps}
+              >
+              </DeleteArea>
+              {magic.placeholder}
+            </>
+          )}
+        </Droppable>
+        <FontAwesomeIcon icon={faTrash} size={"4x"} color={"white"} />
+        <Droppable droppableId="DeleteBoard" type="board">
+          {(magic, snapshot) => (
+            <>
+              <DeleteArea
+                isDraggingOver={snapshot.isDraggingOver}
+                ref={magic.innerRef}
+                {...magic.droppableProps}
+              >
+              </DeleteArea>
+              {magic.placeholder}
+            </>
+          )}
+        </Droppable>
+      </TrashBox>
+      
     </DragDropContext>
   );
 }
