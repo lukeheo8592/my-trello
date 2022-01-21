@@ -62,7 +62,7 @@ interface IAreaProps {
 function App() {
   const [toDos, setToDos] = useRecoilState(toDoState);
   const onDragEnd = (info: DropResult) => {
-    const { type, destination, draggableId, source } = info;
+    const { type, destination, source } = info;
 
     if (!destination || !source) return;
     if (destination?.droppableId === 'DeleteCard' || destination?.droppableId === 'DeleteBoard') {
