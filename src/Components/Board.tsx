@@ -22,7 +22,10 @@ background-color: ${(props) =>
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 14px 10px;
+  padding: 7px 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, .5);
+    margin-bottom: 10px;
+
 `;
 const Title = styled.h2`
   text-align: center;
@@ -51,10 +54,18 @@ const Form = styled.form`
   width: 100%;
   display:flex;
   justify-content: center;
-  input {
-    width: 80%;
-  }
 `;
+const Input = styled.input`
+
+border: none;
+    border-radius: 15px;
+    width: 90%;
+    font-size: 20px;
+    text-align: center;
+    &:focus {
+      outline: none;
+  }
+`
 
 interface IBoardProps {
   toDos: ITodo[];
@@ -93,7 +104,7 @@ function Board({ toDos, boardId, boardIndex }: IBoardProps) {
             <Title>{boardId}</Title>
           </TitleDiv>
           <Form onSubmit={handleSubmit(onValid)}>
-            <input
+            <Input
               {...register("toDo", { required: true })}
               type="text"
               placeholder={`Add task on ${boardId}`}

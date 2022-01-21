@@ -39,10 +39,10 @@ const DeleteArea = styled.div<IAreaProps>`
   
 `;
 const TrashBox = styled.div`
-width: 250px;
-height: 250px;
+width: 200px;
+height: 200px;
 margin: auto;
-margin-top: 100px;
+margin-top: 50px;
 display:flex;
 justify-content: center;
 align-items: center;
