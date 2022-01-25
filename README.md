@@ -1,6 +1,9 @@
 # Getting Started with Create React App
 
+This project uses the React Hook Form to build and verify the input form. It also manages the status of the application using Recoil's atoms and selectors. Finally, I implemented drag-and-drop using Beautiful DnD.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+"homepage": "https://lukeheo8592.github.io/my-trello"
 
 ## Available Scripts
 
